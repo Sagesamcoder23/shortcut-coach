@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortcut Coach</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#6b7280;--card:#f3f6f4;--line:#e1e5e3;--acc:#107c41;--acc2:#e2f0d9;--key:#1f3864;--keybg:#fff}
+@media(prefers-color-scheme:dark){:root{--bg:#1b1d1f;--fg:#e8eaed;--mut:#9aa0a6;--card:#25282a;--line:#363a3d;--acc:#3fb36b;--acc2:#1f3a2a;--key:#a8c7fa;--keybg:#1b1d1f}}
+*{box-sizing:border-box}
+body{margin:0;font:13px/1.35 "Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--fg)}
+header{padding:10px 12px 6px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+h1{margin:0 0 2px;font-size:15px;color:var(--acc)}
+.sub{color:var(--mut);font-size:11px}
+.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 8px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--acc);width:0}
+nav{display:flex;gap:4px}
+nav button{flex:1;padding:6px 0;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:6px;cursor:pointer;font:inherit}
+nav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+main{padding:10px 12px 40px}
+input,select{width:100%;padding:7px 8px;margin-bottom:6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit}
+.row2{display:flex;gap:6px}.row2 select{flex:1}
+.item{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start}
+.item.done{background:var(--acc2)}
+.item .body{flex:1;min-width:0}
+.act{font-weight:600}
+.cat{color:var(--mut);font-size:10.5px;margin-top:3px}
+.keys{margin-top:4px;display:flex;flex-wrap:wrap;gap:4px}
+kbd{font:600 12px Consolas,Menlo,monospace;color:var(--key);background:var(--keybg);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:2px 6px;word-break:break-word}
+.alt{color:var(--mut);font-size:10px;align-self:center}
+.chk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);background:var(--bg);color:var(--bg);cursor:pointer;flex:none;font-size:14px;line-height:1}
+.item.done .chk{background:var(--acc);border-color:var(--acc);color:#fff}
+.count{color:var(--mut);font-size:11px;margin:2px 0 8px}
+.big{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:16px 12px;text-align:center;margin:10px 0}
+.big .q{font-size:16px;font-weight:600;margin-bottom:10px}
+.big .a{min-height:34px}
+.btns{display:flex;gap:6px;margin-top:8px}
+.btns button,.reset{flex:1;padding:8px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;font:inherit}
+.btns .pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.pr{margin-bottom:9px}.pr .l{display:flex;justify-content:space-between}
+.pr .b{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:3px}.pr .b>i{display:block;height:100%;background:var(--acc)}
+.hide{display:none}
+.tip{color:var(--mut);font-size:11px;margin-top:10px}
+
+nav button{font-size:12px}
+.nbtn{padding:7px 10px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;font:inherit}
+.nbtn.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.nbtn.sm{padding:3px 8px;font-size:11px}
+textarea{width:100%;padding:7px 8px;margin-bottom:6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit;resize:vertical}
+.nform{border:1px solid var(--acc);border-radius:8px;padding:8px;margin:8px 0;background:var(--card)}
+.nform .btns{margin-top:2px}
+.note{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:9px 10px;margin-bottom:7px}
+.note .nt{font-weight:600}
+.note .nm{color:var(--mut);font-size:10.5px;margin:2px 0 5px}
+.chip{display:inline-block;background:var(--acc2);color:var(--acc);border-radius:10px;padding:1px 8px;font-size:10.5px;margin-right:6px;font-weight:600}
+.nbody{white-space:pre-wrap;word-break:break-word;max-height:5.4em;overflow:hidden;cursor:pointer;position:relative}
+.nbody.open{max-height:none}
+.nact{display:flex;gap:6px;margin-top:7px}
+.status{color:var(--acc);font-size:11px;min-height:15px;margin:4px 0}
+</style></head><body>
+<header>
+  <h1>Shortcut Coach</h1>
+  <div class="sub" id="topline"></div>
+  <div class="bar"><i id="topbar"></i></div>
+  <nav><button data-tab="search" class="on">Search</button><button data-tab="drill">Drill</button><button data-tab="notes">Notes</button><button data-tab="prog">Progress</button></nav>
+</header>
+<main>
+  <section id="tab-search">
+    <input id="q" type="search" placeholder="Search action or keys (paste, filter, F4...)" autocomplete="off">
+    <div class="row2"><select id="cat"></select><select id="tier"><option value="All">All tiers</option><option>Daily</option><option>Power</option><option>Reference</option></select></div>
+    <div class="count" id="count"></div>
+    <div id="list"></div>
+  </section>
+  <section id="tab-drill" class="hide">
+    <select id="dtier"><option value="Power">Drill: Power shortcuts</option><option value="Daily">Drill: Daily shortcuts</option><option value="Reference">Drill: Reference shortcuts</option><option value="All">Drill: Everything</option></select>
+    <div class="big" id="card"></div>
+    <div class="tip">Try the shortcut in your sheet first, then reveal. "Got it" marks it mastered and removes it from the drill.</div>
+  </section>
+  <section id="tab-notes" class="hide">
+    <div class="row2"><button class="nbtn pri" id="nnew" style="flex:1">+ New note</button><button class="nbtn" id="nbk" style="flex:1">Backup / Restore</button></div>
+    <div class="nform hide" id="nform">
+      <input id="nTitle" placeholder="What is this about? (e.g. Bond YTM function)" autocomplete="off">
+      <input id="nTag" list="tagsList" placeholder="Tag: function, project, workflow..." autocomplete="off">
+      <datalist id="tagsList"></datalist>
+      <textarea id="nBody" rows="8" placeholder="What did you do? Formulas used, steps, gotchas, links..."></textarea>
+      <div class="btns"><button class="nbtn" id="ncancel">Cancel</button><button class="nbtn pri" id="nsave">Save note</button></div>
+    </div>
+    <div class="nform hide" id="nbox">
+      <div class="sub" style="margin-bottom:6px">Backup: click Show backup, then Copy and paste it somewhere safe (Notes app, email). Restore: paste a backup below and click Restore.</div>
+      <textarea id="nbtext" rows="6" placeholder="Backup text appears here, or paste a backup to restore"></textarea>
+      <div class="btns"><button class="nbtn" id="nshow">Show backup</button><button class="nbtn" id="ncopy">Copy</button><button class="nbtn pri" id="nrestore">Restore</button></div>
+    </div>
+    <div class="status" id="nstatus"></div>
+    <input id="nq" type="search" placeholder="Search notes..." autocomplete="off" style="margin-top:6px">
+    <select id="ntagf"></select>
+    <div class="count" id="ncount"></div>
+    <div id="nlist"></div>
+    <div class="tip">Notes are saved on this computer and appear in every workbook you open. Use Backup now and then, since clearing browser data would erase them.</div>
+  </section>
+  <section id="tab-prog" class="hide">
+    <div id="prog"></div>
+    <button class="reset" id="reset">Reset all progress</button>
+  </section>
+</main>
+<script>
+const DATA = [{"id": 1, "c": "Frequently Used", "a": "Paste selection", "k": "Cmd+V or Ctrl+V", "t": "Daily"}, {"id": 2, "c": "Frequently Used", "a": "Copy selection", "k": "Cmd+C or Ctrl+C", "t": "Daily"}, {"id": 3, "c": "Frequently Used", "a": "Cut selection", "k": "Cmd+X or Ctrl+X", "t": "Daily"}, {"id": 4, "c": "Frequently Used", "a": "Clear selection", "k": "Delete", "t": "Reference"}, {"id": 5, "c": "Frequently Used", "a": "Save workbook", "k": "Cmd+S or Ctrl+S", "t": "Daily"}, {"id": 6, "c": "Frequently Used", "a": "Save As dialog box", "k": "Cmd+Shift+S or F12", "t": "Reference"}, {"id": 7, "c": "Frequently Used", "a": "Undo action", "k": "Cmd+Z or Ctrl+Z", "t": "Daily"}, {"id": 8, "c": "Frequently Used", "a": "Redo action", "k": "Cmd+Y or Ctrl+Y or Cmd+Shift+Z", "t": "Daily"}, {"id": 9, "c": "Frequently Used", "a": "Select all", "k": "Cmd+A or Cmd+Shift+Spacebar", "t": "Daily"}, {"id": 10, "c": "Frequently Used", "a": "Open new blank workbook", "k": "Cmd+N or Ctrl+N", "t": "Reference"}, {"id": 11, "c": "Frequently Used", "a": "Create workbook from template", "k": "Cmd+Shift+P", "t": "Reference"}, {"id": 12, "c": "Frequently Used", "a": "Open dialog box", "k": "Cmd+O or Ctrl+O", "t": "Reference"}, {"id": 13, "c": "Frequently Used", "a": "Close active window", "k": "Cmd+W or Ctrl+W", "t": "Reference"}, {"id": 14, "c": "Frequently Used", "a": "Quit Excel", "k": "Cmd+Q", "t": "Reference"}, {"id": 15, "c": "Frequently Used", "a": "Print workbook / Print preview", "k": "Cmd+P or Ctrl+P", "t": "Daily"}, {"id": 16, "c": "Frequently Used", "a": "Fill cells down", "k": "Cmd+D or Ctrl+D", "t": "Power"}, {"id": 17, "c": "Frequently Used", "a": "Fill cells right", "k": "Cmd+R or Ctrl+R", "t": "Power"}, {"id": 18, "c": "Frequently Used", "a": "Insert cells", "k": "Ctrl+Shift+=", "t": "Power"}, {"id": 19, "c": "Frequently Used", "a": "Delete cells", "k": "Cmd+- or Ctrl+-", "t": "Power"}, {"id": 20, "c": "Frequently Used", "a": "Paste Special dialog", "k": "Cmd+Ctrl+V or Ctrl+Option+V or Cmd+Option+V", "t": "Power"}, {"id": 21, "c": "Frequently Used", "a": "Go To dialog box", "k": "Ctrl+G or F5", "t": "Power"}, {"id": 22, "c": "Frequently Used", "a": "Replace dialog box", "k": "Ctrl+H or Cmd+Shift+H", "t": "Power"}, {"id": 23, "c": "Frequently Used", "a": "Format Cells dialog box", "k": "Cmd+1 or Ctrl+1", "t": "Power"}, {"id": 24, "c": "Frequently Used", "a": "Add / Remove filter", "k": "Cmd+Shift+F or Ctrl+Shift+L", "t": "Power"}, {"id": 25, "c": "Frequently Used", "a": "Expand / Minimize ribbon tabs", "k": "Cmd+Option+R", "t": "Reference"}, {"id": 26, "c": "Frequently Used", "a": "Display Formula Builder", "k": "Shift+F3", "t": "Reference"}, {"id": 27, "c": "Frequently Used", "a": "Define Name dialog", "k": "Cmd+F3", "t": "Power"}, {"id": 28, "c": "Frequently Used", "a": "Create Names dialog", "k": "Cmd+Shift+F3", "t": "Reference"}, {"id": 29, "c": "Frequently Used", "a": "Insert new worksheet", "k": "Shift+F11", "t": "Power"}, {"id": 30, "c": "Frequently Used", "a": "Open Visual Basic editor", "k": "Option+F11", "t": "Reference"}, {"id": 31, "c": "Frequently Used", "a": "Check spelling", "k": "F7", "t": "Reference"}, {"id": 32, "c": "Frequently Used", "a": "Open Thesaurus", "k": "Shift+F7", "t": "Reference"}, {"id": 33, "c": "Navigating and Scrolling", "a": "Move one cell (up, down, left, right)", "k": "Arrow keys", "t": "Daily"}, {"id": 34, "c": "Navigating and Scrolling", "a": "Move to edge of current data region", "k": "Cmd+Arrow key", "t": "Power"}, {"id": 35, "c": "Navigating and Scrolling", "a": "Move to beginning of row", "k": "Home (MacBook: Fn+Left Arrow)", "t": "Reference"}, {"id": 36, "c": "Navigating and Scrolling", "a": "Move to beginning of worksheet", "k": "Ctrl+Home (MacBook: Ctrl+Fn+Left Arrow)", "t": "Power"}, {"id": 37, "c": "Navigating and Scrolling", "a": "Move to last used cell on worksheet", "k": "Ctrl+End (MacBook: Ctrl+Fn+Right Arrow)", "t": "Power"}, {"id": 38, "c": "Navigating and Scrolling", "a": "Move down one screen", "k": "Page Down (MacBook: Fn+Down Arrow)", "t": "Reference"}, {"id": 39, "c": "Navigating and Scrolling", "a": "Move up one screen", "k": "Page Up (MacBook: Fn+Up Arrow)", "t": "Reference"}, {"id": 40, "c": "Navigating and Scrolling", "a": "Move one screen right", "k": "Option+Page Down (MacBook: Fn+Option+Down Arrow)", "t": "Reference"}, {"id": 41, "c": "Navigating and Scrolling", "a": "Move one screen left", "k": "Option+Page Up (MacBook: Fn+Option+Up Arrow)", "t": "Reference"}, {"id": 42, "c": "Navigating and Scrolling", "a": "Next sheet in workbook", "k": "Ctrl+Page Down or Option+Right Arrow", "t": "Power"}, {"id": 43, "c": "Navigating and Scrolling", "a": "Previous sheet in workbook", "k": "Ctrl+Page Up or Option+Left Arrow", "t": "Power"}, {"id": 44, "c": "Navigating and Scrolling", "a": "Scroll to active cell", "k": "Ctrl+Delete", "t": "Reference"}, {"id": 45, "c": "Navigating and Scrolling", "a": "Find dialog box", "k": "Ctrl+F or Shift+F5", "t": "Daily"}, {"id": 46, "c": "Navigating and Scrolling", "a": "In-cell / sheet search", "k": "Cmd+F", "t": "Reference"}, {"id": 47, "c": "Navigating and Scrolling", "a": "Move between unlocked cells", "k": "Tab", "t": "Reference"}, {"id": 48, "c": "Navigating and Scrolling", "a": "Scroll horizontally", "k": "Shift + Scroll mouse wheel", "t": "Reference"}, {"id": 49, "c": "Selecting Cells, Rows, Columns", "a": "Extend selection by one cell", "k": "Shift+Arrow key", "t": "Reference"}, {"id": 50, "c": "Selecting Cells, Rows, Columns", "a": "Extend selection to edge of data block", "k": "Shift+Cmd+Arrow key", "t": "Power"}, {"id": 51, "c": "Selecting Cells, Rows, Columns", "a": "Extend selection to start of row", "k": "Shift+Home (MacBook: Shift+Fn+Left Arrow)", "t": "Reference"}, {"id": 52, "c": "Selecting Cells, Rows, Columns", "a": "Extend selection to start of sheet", "k": "Ctrl+Shift+Home (MacBook: Ctrl+Shift+Fn+Left Arrow)", "t": "Power"}, {"id": 53, "c": "Selecting Cells, Rows, Columns", "a": "Extend selection to last used cell", "k": "Ctrl+Shift+End (MacBook: Ctrl+Shift+Fn+Right Arrow)", "t": "Power"}, {"id": 54, "c": "Selecting Cells, Rows, Columns", "a": "Extend selection down one screen", "k": "Shift+Page Down (MacBook: Shift+Fn+Down Arrow)", "t": "Reference"}, {"id": 55, "c": "Selecting Cells, Rows, Columns", "a": "Extend selection up one screen", "k": "Shift+Page Up (MacBook: Shift+Fn+Up Arrow)", "t": "Reference"}, {"id": 56, "c": "Selecting Cells, Rows, Columns", "a": "Select entire column", "k": "Ctrl+Spacebar", "t": "Power"}, {"id": 57, "c": "Selecting Cells, Rows, Columns", "a": "Select entire row", "k": "Shift+Spacebar", "t": "Power"}, {"id": 58, "c": "Selecting Cells, Rows, Columns", "a": "Select current data region / entire sheet", "k": "Cmd+A", "t": "Power"}, {"id": 59, "c": "Selecting Cells, Rows, Columns", "a": "Select only visible cells", "k": "Shift+Cmd+*", "t": "Power"}, {"id": 60, "c": "Selecting Cells, Rows, Columns", "a": "Select only active cell in selection", "k": "Shift+Delete", "t": "Reference"}, {"id": 61, "c": "Selecting Cells, Rows, Columns", "a": "Turn extend mode on/off", "k": "F8", "t": "Reference"}, {"id": 62, "c": "Selecting Cells, Rows, Columns", "a": "Add another range to selection", "k": "Shift+F8", "t": "Reference"}, {"id": 63, "c": "Selecting Cells, Rows, Columns", "a": "Select current array", "k": "Ctrl+/", "t": "Reference"}, {"id": 64, "c": "Selecting Cells, Rows, Columns", "a": "Select row differences", "k": "Ctrl+\\", "t": "Power"}, {"id": 65, "c": "Selecting Cells, Rows, Columns", "a": "Select direct precedents", "k": "Ctrl+Shift+[", "t": "Power"}, {"id": 66, "c": "Selecting Cells, Rows, Columns", "a": "Select all precedents (direct & indirect)", "k": "Ctrl+Shift+{", "t": "Daily"}, {"id": 67, "c": "Selecting Cells, Rows, Columns", "a": "Select direct dependents", "k": "Ctrl+]", "t": "Power"}, {"id": 68, "c": "Selecting Cells, Rows, Columns", "a": "Select all dependents (direct & indirect)", "k": "Ctrl+Shift+}", "t": "Daily"}, {"id": 69, "c": "Selecting Cells, Rows, Columns", "a": "Toggle graphic objects display", "k": "Ctrl+6", "t": "Reference"}, {"id": 70, "c": "Entering and Editing Data", "a": "Edit active cell", "k": "F2 or Ctrl+U", "t": "Power"}, {"id": 71, "c": "Entering and Editing Data", "a": "Cancel entry in cell / Formula bar", "k": "Esc", "t": "Reference"}, {"id": 72, "c": "Entering and Editing Data", "a": "Complete entry and move down", "k": "Return", "t": "Daily"}, {"id": 73, "c": "Entering and Editing Data", "a": "Complete entry and move up", "k": "Shift+Return", "t": "Daily"}, {"id": 74, "c": "Entering and Editing Data", "a": "Complete entry and move right", "k": "Tab", "t": "Daily"}, {"id": 75, "c": "Entering and Editing Data", "a": "Complete entry and move left", "k": "Shift+Tab", "t": "Daily"}, {"id": 76, "c": "Entering and Editing Data", "a": "Start new line inside same cell", "k": "Option+Return or Ctrl+Option+Return", "t": "Power"}, {"id": 77, "c": "Entering and Editing Data", "a": "Fill selected range with typed entry", "k": "Cmd+Return or Ctrl+Return", "t": "Power"}, {"id": 78, "c": "Entering and Editing Data", "a": "Flash Fill", "k": "Ctrl+E", "t": "Power"}, {"id": 79, "c": "Entering and Editing Data", "a": "Delete character left / clear selection", "k": "Delete", "t": "Reference"}, {"id": 80, "c": "Entering and Editing Data", "a": "Delete character right", "k": "Forward Delete (MacBook: Fn+Delete)", "t": "Reference"}, {"id": 81, "c": "Entering and Editing Data", "a": "Delete text to end of line", "k": "Ctrl+Fn+Delete", "t": "Reference"}, {"id": 82, "c": "Entering and Editing Data", "a": "Insert / edit note", "k": "Shift+F2", "t": "Power"}, {"id": 83, "c": "Entering and Editing Data", "a": "Insert / reply to threaded comment", "k": "Cmd+Shift+F2 or Cmd+Return", "t": "Reference"}, {"id": 84, "c": "Entering and Editing Data", "a": "Insert special characters / emoji", "k": "Ctrl+Cmd+Spacebar", "t": "Reference"}, {"id": 85, "c": "Entering and Editing Data", "a": "Insert hyperlink", "k": "Cmd+K or Ctrl+K", "t": "Power"}, {"id": 86, "c": "Cells and Formula Bar", "a": "Start a formula", "k": "=", "t": "Reference"}, {"id": 87, "c": "Cells and Formula Bar", "a": "Toggle reference style ($ Absolute)", "k": "Cmd+T or F4", "t": "Power"}, {"id": 88, "c": "Cells and Formula Bar", "a": "Insert AutoSum formula", "k": "Shift+Cmd+T", "t": "Power"}, {"id": 89, "c": "Cells and Formula Bar", "a": "Enter array formula", "k": "Shift+Cmd+Return or Ctrl+Shift+Return", "t": "Power"}, {"id": 90, "c": "Cells and Formula Bar", "a": "Expand / collapse formula bar", "k": "Ctrl+Shift+U", "t": "Reference"}, {"id": 91, "c": "Cells and Formula Bar", "a": "Toggle formula checking tooltips", "k": "Ctrl+Option+P", "t": "Reference"}, {"id": 92, "c": "Cells and Formula Bar", "a": "Show Formula Builder after function name", "k": "Ctrl+A", "t": "Reference"}, {"id": 93, "c": "Cells and Formula Bar", "a": "Enter current date", "k": "Ctrl+;", "t": "Power"}, {"id": 94, "c": "Cells and Formula Bar", "a": "Enter current time", "k": "Cmd+;", "t": "Reference"}, {"id": 95, "c": "Cells and Formula Bar", "a": "Copy value from cell above", "k": "Ctrl+Shift+\"", "t": "Power"}, {"id": 96, "c": "Cells and Formula Bar", "a": "Copy formula from cell above", "k": "Ctrl+'", "t": "Power"}, {"id": 97, "c": "Cells and Formula Bar", "a": "Toggle values and formula display", "k": "Ctrl+`", "t": "Power"}, {"id": 98, "c": "Cells and Formula Bar", "a": "Display AutoComplete list", "k": "Option+Down Arrow", "t": "Reference"}, {"id": 99, "c": "Cells and Formula Bar", "a": "Calculate active sheet", "k": "Shift+F9", "t": "Reference"}, {"id": 100, "c": "Cells and Formula Bar", "a": "Calculate all open workbooks", "k": "Cmd+= or F9", "t": "Power"}, {"id": 101, "c": "Cells and Formula Bar", "a": "Full calculate across all workbooks", "k": "Ctrl+Option+F9", "t": "Reference"}, {"id": 102, "c": "Cells and Formula Bar", "a": "Recheck dependencies and full calculate", "k": "Ctrl+Option+Shift+F9", "t": "Reference"}, {"id": 103, "c": "Cells and Formula Bar", "a": "Open Smart Lookup pane", "k": "Ctrl+Option+Cmd+L", "t": "Reference"}, {"id": 104, "c": "Formatting", "a": "Bold", "k": "Cmd+B or Ctrl+B", "t": "Daily"}, {"id": 105, "c": "Formatting", "a": "Italic", "k": "Cmd+I or Ctrl+I", "t": "Daily"}, {"id": 106, "c": "Formatting", "a": "Underline", "k": "Cmd+U", "t": "Reference"}, {"id": 107, "c": "Formatting", "a": "Strikethrough", "k": "Shift+Cmd+X", "t": "Reference"}, {"id": 108, "c": "Formatting", "a": "Increase font size", "k": "Shift+Cmd+>", "t": "Reference"}, {"id": 109, "c": "Formatting", "a": "Decrease font size", "k": "Shift+Cmd+<", "t": "Reference"}, {"id": 110, "c": "Formatting", "a": "Align center", "k": "Cmd+E", "t": "Reference"}, {"id": 111, "c": "Formatting", "a": "Align left", "k": "Cmd+L", "t": "Reference"}, {"id": 112, "c": "Formatting", "a": "Create table", "k": "Cmd+T or Ctrl+T", "t": "Power"}, {"id": 113, "c": "Formatting", "a": "Display Modify Cell Style dialog", "k": "Shift+Cmd+L", "t": "Reference"}, {"id": 114, "c": "Formatting", "a": "Apply General number format", "k": "Ctrl+Shift+~", "t": "Reference"}, {"id": 115, "c": "Formatting", "a": "Apply Currency format ($)", "k": "Ctrl+Shift+$", "t": "Power"}, {"id": 116, "c": "Formatting", "a": "Apply Percentage format (%)", "k": "Ctrl+Shift+%", "t": "Power"}, {"id": 117, "c": "Formatting", "a": "Apply Exponential format", "k": "Ctrl+Shift+^", "t": "Reference"}, {"id": 118, "c": "Formatting", "a": "Apply Date format", "k": "Ctrl+Shift+#", "t": "Power"}, {"id": 119, "c": "Formatting", "a": "Apply Time format", "k": "Ctrl+Shift+@", "t": "Reference"}, {"id": 120, "c": "Formatting", "a": "Apply Number format (commas, 2 decimals)", "k": "Ctrl+Shift+!", "t": "Power"}, {"id": 121, "c": "Formatting", "a": "Apply outline border around selection", "k": "Cmd+Option+0", "t": "Power"}, {"id": 122, "c": "Formatting", "a": "Add border to top / bottom", "k": "Cmd+Option+Up / Down Arrow", "t": "Reference"}, {"id": 123, "c": "Formatting", "a": "Add border to left / right", "k": "Cmd+Option+Left / Right Arrow", "t": "Reference"}, {"id": 124, "c": "Formatting", "a": "Remove outline borders", "k": "Cmd+Option+-", "t": "Power"}, {"id": 125, "c": "Formatting", "a": "Hide row", "k": "Cmd+( or Ctrl+( or Ctrl+9", "t": "Power"}, {"id": 126, "c": "Formatting", "a": "Unhide row", "k": "Cmd+Shift+( or Ctrl+Shift+(", "t": "Power"}, {"id": 127, "c": "Formatting", "a": "Hide column", "k": "Cmd+) or Ctrl+) or Ctrl+0", "t": "Power"}, {"id": 128, "c": "Formatting", "a": "Unhide column", "k": "Cmd+Shift+) or Ctrl+Shift+)", "t": "Power"}, {"id": 129, "c": "Data, Outlines, PivotTables", "a": "Open Sort dialog box", "k": "Cmd+Shift+R", "t": "Power"}, {"id": 130, "c": "Data, Outlines, PivotTables", "a": "Open Filter list / PivotTable pop-up", "k": "Option+Down Arrow", "t": "Reference"}, {"id": 131, "c": "Data, Outlines, PivotTables", "a": "Move clockwise to next corner of selection", "k": "Ctrl+.", "t": "Reference"}, {"id": 132, "c": "Data, Outlines, PivotTables", "a": "Group selected rows/columns", "k": "Cmd+Shift+K", "t": "Power"}, {"id": 133, "c": "Data, Outlines, PivotTables", "a": "Ungroup selected rows/columns", "k": "Cmd+Shift+J", "t": "Power"}, {"id": 134, "c": "Data, Outlines, PivotTables", "a": "Display or hide outline symbols", "k": "Ctrl+8", "t": "Reference"}, {"id": 135, "c": "Data, Outlines, PivotTables", "a": "Insert new chart sheet", "k": "F11", "t": "Reference"}, {"id": 136, "c": "Data, Outlines, PivotTables", "a": "Cycle through chart objects", "k": "Arrow keys", "t": "Reference"}, {"id": 137, "c": "Data, Outlines, PivotTables", "a": "Toggle Drawing mode on/off", "k": "Cmd+Ctrl+Z", "t": "Reference"}, {"id": 138, "c": "Windows, Menus, System", "a": "Switch to full-screen view", "k": "Cmd+Ctrl+F", "t": "Reference"}, {"id": 139, "c": "Windows, Menus, System", "a": "Switch to next application", "k": "Cmd+Tab", "t": "Reference"}, {"id": 140, "c": "Windows, Menus, System", "a": "Switch to previous application", "k": "Shift+Cmd+Tab", "t": "Reference"}, {"id": 141, "c": "Windows, Menus, System", "a": "Minimize active workbook window", "k": "Ctrl+F9", "t": "Reference"}, {"id": 142, "c": "Windows, Menus, System", "a": "Maximize or restore active window", "k": "Ctrl+F10 or Cmd+F10", "t": "Reference"}, {"id": 143, "c": "Windows, Menus, System", "a": "Hide Excel application", "k": "Cmd+H", "t": "Reference"}, {"id": 144, "c": "Windows, Menus, System", "a": "Move to next option/control in dialog", "k": "Tab", "t": "Reference"}, {"id": 145, "c": "Windows, Menus, System", "a": "Move to previous option/control in dialog", "k": "Shift+Tab", "t": "Reference"}, {"id": 146, "c": "Windows, Menus, System", "a": "Cancel command / Close dialog box", "k": "Esc", "t": "Reference"}, {"id": 147, "c": "Windows, Menus, System", "a": "Display context menu (right-click)", "k": "Shift+F10", "t": "Reference"}, {"id": 148, "c": "Windows, Menus, System", "a": "Display paste options / object button menu", "k": "Option+Shift+F10", "t": "Reference"}, {"id": 149, "c": "Windows, Menus, System", "a": "Switch focus between sheet, ribbon, pane", "k": "F6 or Shift+F6", "t": "Reference"}, {"id": 150, "c": "Windows, Menus, System", "a": "Take desktop screenshot", "k": "Shift+Cmd+3", "t": "Reference"}, {"id": 151, "c": "Copilot in Excel", "a": "Open Copilot task pane", "k": "Cmd+Ctrl+I", "t": "Power"}, {"id": 152, "c": "Copilot in Excel", "a": "Send prompt in Copilot pane", "k": "Return", "t": "Reference"}, {"id": 153, "c": "Copilot in Excel", "a": "Stop or cancel current request", "k": "Esc", "t": "Reference"}, {"id": 154, "c": "Copilot in Excel", "a": "Accept changes made by Copilot", "k": "Cmd+Return", "t": "Reference"}, {"id": 155, "c": "Copilot in Excel", "a": "Switch between edit, chat, and plan mode", "k": "Cmd+Shift+M", "t": "Reference"}, {"id": 156, "c": "Copilot in Excel", "a": "Navigate between chat responses", "k": "Option+C", "t": "Reference"}, {"id": 157, "c": "Copilot in Excel", "a": "Confirm selection of files in pane", "k": "Cmd+J", "t": "Reference"}, {"id": 158, "c": "Copilot in Excel", "a": "Start voice dictation for Copilot", "k": "Option+Shift+H", "t": "Reference"}, {"id": 159, "c": "Copilot in Excel", "a": "Move focus between grid and Copilot pane", "k": "Shift+F6", "t": "Reference"}, {"id": 160, "c": "Function Keys", "a": "Help window", "k": "F1", "t": "Reference"}, {"id": 161, "c": "Function Keys", "a": "Edit active cell", "k": "F2", "t": "Power"}, {"id": 162, "c": "Function Keys", "a": "Insert / Edit note", "k": "Shift+F2", "t": "Reference"}, {"id": 163, "c": "Function Keys", "a": "Insert / Reply to comment", "k": "Cmd+Shift+F2", "t": "Reference"}, {"id": 164, "c": "Function Keys", "a": "Save dialog", "k": "Option+F2", "t": "Reference"}, {"id": 165, "c": "Function Keys", "a": "Formula Builder", "k": "Shift+F3", "t": "Reference"}, {"id": 166, "c": "Function Keys", "a": "Define Name", "k": "Cmd+F3", "t": "Reference"}, {"id": 167, "c": "Function Keys", "a": "Create Names", "k": "Cmd+Shift+F3", "t": "Reference"}, {"id": 168, "c": "Function Keys", "a": "Toggle reference styles ($)", "k": "F4", "t": "Power"}, {"id": 169, "c": "Function Keys", "a": "Close active window", "k": "Cmd+F4", "t": "Reference"}, {"id": 170, "c": "Function Keys", "a": "Go To dialog", "k": "F5", "t": "Power"}, {"id": 171, "c": "Function Keys", "a": "Find dialog", "k": "Shift+F5", "t": "Reference"}, {"id": 172, "c": "Function Keys", "a": "Search Sheet dialog", "k": "Ctrl+F5", "t": "Reference"}, {"id": 173, "c": "Function Keys", "a": "Switch focus between panels", "k": "F6 / Shift+F6", "t": "Reference"}, {"id": 174, "c": "Function Keys", "a": "Spelling check", "k": "F7", "t": "Reference"}, {"id": 175, "c": "Function Keys", "a": "Thesaurus", "k": "Shift+F7 / Ctrl+Option+Cmd+R", "t": "Reference"}, {"id": 176, "c": "Function Keys", "a": "Extend selection mode", "k": "F8", "t": "Reference"}, {"id": 177, "c": "Function Keys", "a": "Add to selection mode", "k": "Shift+F8", "t": "Reference"}, {"id": 178, "c": "Function Keys", "a": "Macro dialog", "k": "Option+F8", "t": "Reference"}, {"id": 179, "c": "Function Keys", "a": "Calculate all workbooks", "k": "F9", "t": "Power"}, {"id": 180, "c": "Function Keys", "a": "Calculate active sheet", "k": "Shift+F9", "t": "Reference"}, {"id": 181, "c": "Function Keys", "a": "Minimize window", "k": "Ctrl+F9", "t": "Reference"}, {"id": 182, "c": "Function Keys", "a": "Context menu (Right-click)", "k": "Shift+F10", "t": "Reference"}, {"id": 183, "c": "Function Keys", "a": "Object button menu", "k": "Option+Shift+F10", "t": "Reference"}, {"id": 184, "c": "Function Keys", "a": "Maximize window", "k": "Ctrl+F10 / Cmd+F10", "t": "Reference"}, {"id": 185, "c": "Function Keys", "a": "Insert chart sheet", "k": "F11", "t": "Reference"}, {"id": 186, "c": "Function Keys", "a": "Insert sheet", "k": "Shift+F11", "t": "Reference"}, {"id": 187, "c": "Function Keys", "a": "Excel 4.0 Macro sheet", "k": "Cmd+F11", "t": "Reference"}, {"id": 188, "c": "Function Keys", "a": "Visual Basic editor", "k": "Option+F11", "t": "Reference"}, {"id": 189, "c": "Function Keys", "a": "Save As dialog", "k": "F12", "t": "Reference"}, {"id": 190, "c": "Function Keys", "a": "Open dialog", "k": "Cmd+F12", "t": "Reference"}, {"id": 191, "c": "Function Keys", "a": "Power Query Editor", "k": "Option+F12", "t": "Reference"}];
+const KEY = "shortcutCoach.mastered";
+let done = new Set();
+try { done = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch(e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch(e) {} }
+const $ = id => document.getElementById(id);
+const cats = [...new Set(DATA.map(d => d.c))];
+$("cat").innerHTML = '<option value="All">All categories</option>' + cats.map(c => '<option>' + c.replace(/&/g,"&amp;") + '</option>').join("");
+
+function keysEl(k){
+  const wrap = document.createElement("div"); wrap.className = "keys";
+  k.split(" or ").forEach((alt, i) => {
+    if (i) { const o = document.createElement("span"); o.className = "alt"; o.textContent = "or"; wrap.appendChild(o); }
+    const el = document.createElement("kbd"); el.textContent = alt; wrap.appendChild(el);
+  });
+  return wrap;
+}
+function topline(){
+  const n = done.size, t = DATA.length;
+  $("topline").textContent = n + " of " + t + " mastered";
+  $("topbar").style.width = (100 * n / t) + "%";
+}
+function renderList(){
+  const q = $("q").value.trim().toLowerCase(), c = $("cat").value, t = $("tier").value;
+  const hits = DATA.filter(d => (c === "All" || d.c === c) && (t === "All" || d.t === t) &&
+    (!q || (d.a + " " + d.k + " " + d.c).toLowerCase().includes(q)));
+  $("count").textContent = hits.length + " shortcut" + (hits.length === 1 ? "" : "s");
+  const list = $("list"); list.textContent = "";
+  hits.forEach(d => {
+    const item = document.createElement("div"); item.className = "item" + (done.has(d.id) ? " done" : "");
+    const body = document.createElement("div"); body.className = "body";
+    const a = document.createElement("div"); a.className = "act"; a.textContent = d.a;
+    const cat = document.createElement("div"); cat.className = "cat"; cat.textContent = d.c + " · " + d.t;
+    body.append(a, keysEl(d.k), cat);
+    const b = document.createElement("button"); b.className = "chk"; b.textContent = "✓"; b.title = "Mark mastered";
+    b.onclick = () => { done.has(d.id) ? done.delete(d.id) : done.add(d.id); save(); item.classList.toggle("done"); topline(); };
+    item.append(body, b); list.appendChild(item);
+  });
+}
+// ---- drill ----
+let queue = [], cur = null, shown = false;
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function buildQueue(){
+  const t = $("dtier").value;
+  queue = shuffle(DATA.filter(d => !done.has(d.id) && (t === "All" || d.t === t)));
+  next();
+}
+function next(){ cur = queue.shift() || null; shown = false; renderCard(); }
+function renderCard(){
+  const card = $("card"); card.textContent = "";
+  if (!cur) { card.textContent = "Nothing left in this set - nice work. Pick another tier or reset progress."; return; }
+  const q = document.createElement("div"); q.className = "q"; q.textContent = cur.a;
+  const a = document.createElement("div"); a.className = "a";
+  if (shown) a.appendChild(keysEl(cur.k)); else a.textContent = "( ? )";
+  const btns = document.createElement("div"); btns.className = "btns";
+  const mk = (txt, cls, fn) => { const b = document.createElement("button"); b.textContent = txt; if (cls) b.className = cls; b.onclick = fn; btns.appendChild(b); };
+  if (!shown) mk("Reveal", "pri", () => { shown = true; renderCard(); });
+  else {
+    mk("Again later", "", () => { queue.push(cur); next(); });
+    mk("Got it", "pri", () => { done.add(cur.id); save(); topline(); next(); });
+  }
+  const left = document.createElement("div"); left.className = "cat"; left.style.marginTop = "8px";
+  left.textContent = cur.c + " · " + (queue.length + 1) + " left in set";
+  card.append(q, a, btns, left);
+}
+// ---- progress ----
+function bar(label, n, t){
+  const p = t ? Math.round(100 * n / t) : 0;
+  const d = document.createElement("div"); d.className = "pr";
+  d.innerHTML = '<div class="l"><span></span><span>' + n + '/' + t + ' (' + p + '%)</span></div><div class="b"><i style="width:' + p + '%"></i></div>';
+  d.querySelector("span").textContent = label; return d;
+}
+function renderProg(){
+  const box = $("prog"); box.textContent = "";
+  box.appendChild(bar("OVERALL", done.size, DATA.length));
+  ["Daily","Power","Reference"].forEach(t => { const s = DATA.filter(d => d.t === t); box.appendChild(bar("Tier: " + t, s.filter(d => done.has(d.id)).length, s.length)); });
+  cats.forEach(c => { const s = DATA.filter(d => d.c === c); box.appendChild(bar(c, s.filter(d => done.has(d.id)).length, s.length)); });
+}
+// ---- notes ----
+const NKEY = "shortcutCoach.notes";
+let notes = [];
+try { notes = JSON.parse(localStorage.getItem(NKEY) || "[]"); if (!Array.isArray(notes)) notes = []; } catch(e) { notes = []; }
+function saveNotes(){ try { localStorage.setItem(NKEY, JSON.stringify(notes)); return true; } catch(e) { say("Could not save - storage unavailable."); return false; } }
+let editingId = null, statusTimer = null;
+function say(msg){ $("nstatus").textContent = msg; clearTimeout(statusTimer); statusTimer = setTimeout(() => { $("nstatus").textContent = ""; }, 4000); }
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const fmtDate = ts => new Date(ts).toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+function allTags(){ return [...new Set(notes.map(n => n.tag).filter(Boolean))].sort((a, b) => a.localeCompare(b)); }
+function refreshTags(){
+  const cur = $("ntagf").value || "All";
+  const sel = $("ntagf"); sel.textContent = "";
+  ["All", ...allTags()].forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = t === "All" ? "All tags" : t; sel.appendChild(o); });
+  sel.value = allTags().includes(cur) || cur === "All" ? cur : "All";
+  const dl = $("tagsList"); dl.textContent = "";
+  allTags().forEach(t => { const o = document.createElement("option"); o.value = t; dl.appendChild(o); });
+}
+function openForm(id){
+  editingId = id || null;
+  const n = notes.find(x => x.id === id);
+  $("nTitle").value = n ? n.title : ""; $("nTag").value = n ? n.tag : ""; $("nBody").value = n ? n.body : "";
+  $("nbox").classList.add("hide"); $("nform").classList.remove("hide"); $("nTitle").focus();
+}
+function closeForm(){ $("nform").classList.add("hide"); editingId = null; }
+function saveForm(){
+  const title = $("nTitle").value.trim(), tag = $("nTag").value.trim(), body = $("nBody").value.trim();
+  if (!title && !body) { say("Add a title or some text first."); return; }
+  if (editingId) {
+    const n = notes.find(x => x.id === editingId);
+    if (n) { n.title = title || "Untitled"; n.tag = tag; n.body = body; n.updated = Date.now(); }
+  } else notes.unshift({ id: uid(), title: title || "Untitled", tag, body, updated: Date.now() });
+  if (saveNotes()) say("Note saved.");
+  closeForm(); renderNotes();
+}
+function copyText(text, el){
+  const fallback = () => { el.focus(); el.select(); let ok = false; try { ok = document.execCommand("copy"); } catch(e) {} return ok; };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => say("Copied."), () => say(fallback() ? "Copied." : "Select the text and press Cmd+C."));
+  else say(fallback() ? "Copied." : "Select the text and press Cmd+C.");
+}
+function renderNotes(){
+  refreshTags();
+  const q = $("nq").value.trim().toLowerCase(), tg = $("ntagf").value;
+  const hits = notes.filter(n => (tg === "All" || n.tag === tg) && (!q || (n.title + " " + n.tag + " " + n.body).toLowerCase().includes(q)))
+    .sort((a, b) => b.updated - a.updated);
+  $("ncount").textContent = hits.length + " note" + (hits.length === 1 ? "" : "s") + (notes.length ? "" : " - click + New note to start");
+  const list = $("nlist"); list.textContent = "";
+  hits.forEach(n => {
+    const card = document.createElement("div"); card.className = "note";
+    const t = document.createElement("div"); t.className = "nt"; t.textContent = n.title;
+    const m = document.createElement("div"); m.className = "nm";
+    if (n.tag) { const c = document.createElement("span"); c.className = "chip"; c.textContent = n.tag; m.appendChild(c); }
+    m.appendChild(document.createTextNode(fmtDate(n.updated)));
+    const b = document.createElement("div"); b.className = "nbody"; b.textContent = n.body; b.title = "Click to expand or collapse";
+    b.onclick = () => b.classList.toggle("open");
+    const act = document.createElement("div"); act.className = "nact";
+    const ed = document.createElement("button"); ed.className = "nbtn sm"; ed.textContent = "Edit"; ed.onclick = () => openForm(n.id);
+    const cp = document.createElement("button"); cp.className = "nbtn sm"; cp.textContent = "Copy";
+    cp.onclick = () => { $("nbtext").value = n.title + "\n\n" + n.body; $("nbox").classList.remove("hide"); copyText($("nbtext").value, $("nbtext")); };
+    const del = document.createElement("button"); del.className = "nbtn sm"; del.textContent = "Delete";
+    let armed = false, tm = null;
+    del.onclick = () => {
+      if (!armed) { armed = true; del.textContent = "Sure?"; tm = setTimeout(() => { armed = false; del.textContent = "Delete"; }, 3000); return; }
+      clearTimeout(tm); notes = notes.filter(x => x.id !== n.id); saveNotes(); renderNotes(); say("Note deleted.");
+    };
+    act.append(ed, cp, del); card.append(t, m, b, act); list.appendChild(card);
+  });
+}
+$("nnew").onclick = () => openForm(null);
+$("ncancel").onclick = closeForm;
+$("nsave").onclick = saveForm;
+$("nbk").onclick = () => { closeForm(); $("nbox").classList.toggle("hide"); };
+$("nshow").onclick = () => { $("nbtext").value = JSON.stringify({ app: "shortcutCoach", notes }, null, 1); say(notes.length + " note(s) in backup. Click Copy."); };
+$("ncopy").onclick = () => { if (!$("nbtext").value) $("nshow").click(); copyText($("nbtext").value, $("nbtext")); };
+$("nrestore").onclick = () => {
+  let obj; try { obj = JSON.parse($("nbtext").value); } catch(e) { say("That doesn't look like a valid backup."); return; }
+  const incoming = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.notes) ? obj.notes : null);
+  if (!incoming) { say("That doesn't look like a valid backup."); return; }
+  let added = 0, updated = 0;
+  incoming.forEach(n => {
+    if (!n || !n.id || typeof n.body !== "string" && typeof n.title !== "string") return;
+    const clean = { id: String(n.id), title: String(n.title || "Untitled"), tag: String(n.tag || ""), body: String(n.body || ""), updated: Number(n.updated) || Date.now() };
+    const ex = notes.find(x => x.id === clean.id);
+    if (!ex) { notes.push(clean); added++; } else if (clean.updated > ex.updated) { Object.assign(ex, clean); updated++; }
+  });
+  saveNotes(); renderNotes(); say("Restored: " + added + " added, " + updated + " updated.");
+};
+["nq","ntagf"].forEach(id => $(id).addEventListener("input", renderNotes));
+// ---- wiring ----
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  ["search","drill","notes","prog"].forEach(t => $("tab-" + t).classList.toggle("hide", t !== b.dataset.tab));
+  if (b.dataset.tab === "drill") buildQueue();
+  if (b.dataset.tab === "prog") renderProg();
+  if (b.dataset.tab === "notes") renderNotes();
+  if (b.dataset.tab === "search") renderList();
+});
+["q","cat","tier"].forEach(id => $(id).addEventListener("input", renderList));
+$("dtier").addEventListener("change", buildQueue);
+let rArmed = false, rTm = null;
+$("reset").onclick = () => {
+  if (!rArmed) { rArmed = true; $("reset").textContent = "Click again to confirm reset"; rTm = setTimeout(() => { rArmed = false; $("reset").textContent = "Reset all progress"; }, 3000); return; }
+  clearTimeout(rTm); rArmed = false; $("reset").textContent = "Reset all progress"; done.clear(); save(); topline(); renderProg();
+};
+topline(); renderList();
+if (window.Office && Office.onReady) Office.onReady(() => { $("q").focus(); });
+</script></body></html>
